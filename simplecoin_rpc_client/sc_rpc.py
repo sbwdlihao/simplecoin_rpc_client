@@ -99,7 +99,7 @@ class SCRPCClient(object):
 
         # Setup the sqlite database mapper
         self.engine = sa.create_engine('sqlite:///{}'.format(self.config['database_path']),
-                                       echo=self.config['log_level'] == "DEBUG")
+                                       echo=self.config['log_level'] == "DEBUG", connect_args={'check_same_thread':False})
 
         # Pulled from SQLA docs to implement strict exclusive access to the
         # payout state database.
@@ -304,7 +304,7 @@ class SCRPCClient(object):
                                  self.coin_rpc.coinserv['account'], balance))
         self.logger.info("Total to be paid {:,}".format(total_out))
 
-        if balance < total_out:
+        if float(balance) < float(total_out):
             self.logger.error("Payout wallet is out of funds!")
             self.db.session.rollback()
             # XXX: Add an email call here
